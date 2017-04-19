@@ -1,0 +1,15 @@
+localization
+ mybakat.se/en/
+ mybakat.se/en/blog/
+ mybakat.se/en/blog/post/slug
+ mybakat.se/en/recipes
+ mybakat.se/en/recipes/recipe/slug
+
+ mybakat.se/
+ mybakat.se/blog
+ mybakat.se/blog/post/slug
+ mybakat.se/recipes
+ mybakat.se/recipes/recipe/slug
+
+blog
+  - vad ska visas om ingen post_image är satt på första sidan?
