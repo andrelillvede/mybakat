@@ -2,19 +2,27 @@
   "scripts": {
     "dev": "node server.js",
     "build": "next build",
-    "start": "next start"
+    "start": "NODE_ENV=production node server.js"
   },
   "dependencies": {
     "classnames": "^2.2.5",
     "contentful": "^4.1.2",
     "express": "^4.15.2",
+    "fuse.js": "^2.6.2",
+    "hash-obj": "^1.0.0",
+    "imgix-core-js": "^1.0.5",
     "isomorphic-fetch": "^2.2.1",
+    "lodash.find": "^4.6.0",
+    "lru-cache": "^4.0.2",
+    "marked": "^0.3.6",
+    "moment": "^2.18.1",
     "next": "^2",
     "node-fetch": "^1.6.3",
     "postcss-cssnext": "^2.9.0",
     "raf-scroll": "^1.4.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "styled-jsx-postcss": "^0.2"
+    "styled-jsx-postcss": "^0.2",
+    "sw-precache-webpack-plugin": "^0.9.1"
   }
 }

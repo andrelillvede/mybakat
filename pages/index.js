@@ -1,7 +1,10 @@
 import React from 'react';
-// const contentful = require('contentful');
 import * as contentful from 'contentful';
 import 'isomorphic-fetch';
+
+import '../helpers/offline-install';
+import { t, l } from '../helpers/translation';
+import image from '../helpers/image';
 
 import Nav from '../components/index/Nav';
 import Instagram from '../components/index/Instagram';
@@ -25,27 +28,23 @@ export default class Index extends React.Component {
   }
   static async getInitialProps() {
     // get frontpage
+
+    const response = await fetch('https://1c33ebcc.ngrok.io/imageCache');
+    const json = await response.json();
+
     const frontpage = await client.getEntries({
       'sys.id': '3ZCxovbELKgoOUEeIOsu8q',
     });
-    return { frontpage: frontpage.items[0].fields };
+
+    return {
+      frontpage: frontpage.items[0].fields,
+      cache: json.cache,
+    };
   }
 
   render() {
-    // if (window) {
-    //   window.client = client;
-    // }
-    const t = (sv, en) => {
-      if (this.lang === 'en') return en;
-      return sv;
-    };
-
-    const l = (parent, fieldname) => {
-      if (this.lang === 'en') return parent[`${fieldname}_en`];
-      return parent[fieldname];
-    };
-
-    const { frontpage } = this.props;
+    const { frontpage, cache } = this.props;
+    console.log('cache', cache);
     return (
       <div
         style={{
@@ -58,22 +57,22 @@ export default class Index extends React.Component {
       >
         <div className="top">
           {/* <video autoPlay src={frontpage.intro_media.fields.file.url} /> */}
-          {/* <img width="30%" src={frontpage.intro_logo.fields.file.url} /> */}
+          <img width="30%" src={frontpage.intro_logo.fields.file.url} />
         </div>
         <div className="main">
-          {/* <Nav lang={this.lang} />
+          <Nav lang={this.lang} />
           <div className="section">
-            <h2>{t('Om', 'About')}</h2>
+            <h2>{t(this.lang, 'Om', 'About')}</h2>
             {l(frontpage, 'about')}
           </div>
           <div className="section">
             <h2>Instagram</h2>
-            <Instagram />
-          </div> */}
+            <Instagram {...this.props} />
+          </div>
           <div className="section">
-            <h2>{t('Senaste inläggen', 'Latest posts')}</h2>
-            <BlogPosts lang={this.lang} />
-          </div> */
+            <h2>{t(this.lang, 'Senaste inläggen', 'Latest posts')}</h2>
+            <BlogPosts lang={this.lang} {...this.props} />
+          </div>
         </div>
         <style jsx>{`
           h2 {
@@ -81,6 +80,7 @@ export default class Index extends React.Component {
             margin: 0;
           }
           .top {
+            background-color: black;
             position:fixed;
             display: flex;
             justify-content: center;
@@ -102,7 +102,7 @@ export default class Index extends React.Component {
             width: 100vw;
           }
           .section {
-            min-height: 100vh;
+
             width: 100vw;
             background-color: white;
             padding: 0 2em;

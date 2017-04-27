@@ -1,4 +1,5 @@
 import React from 'react';
+import image from '../../helpers/image';
 
 class Instagram extends React.Component {
   constructor() {
@@ -9,9 +10,9 @@ class Instagram extends React.Component {
   }
 
   componentDidMount() {
-    fetch('http://localhost:3000/instagram')
+    fetch('/instagram')
       .then(result => result.json())
-      .then(json => this.setState({posts: json}))
+      .then(json => this.setState({ posts: json }))
       .catch(err => console.error(err));
   }
   render() {
@@ -20,10 +21,18 @@ class Instagram extends React.Component {
         {!this.state.posts
           ? 'could not load instagram images :('
           : this.state.posts.map(post => {
+              console.log(this.props);
               return (
                 <div key={post.code} className="post">
                   <a href={`https://www.instagram.com/p/${post.code}/`}>
-                    <img src={post.display_src} />
+                    <img
+                      src={image(
+                        this.props.cache,
+                        post.display_src,
+                        'smallest'
+                      )}
+                      alt="instagram image"
+                    />
                   </a>
                 </div>
               );
@@ -41,6 +50,12 @@ class Instagram extends React.Component {
           }
           img {
             width: 100%;
+            &:hover {
+              position:relative;
+              top: -10px;
+              left: -10px;
+              box-shadow: 10px 10px 0px 0px #603913;
+            }
           }
           `}</style>
       </div>

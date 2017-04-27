@@ -11,5 +11,8 @@ localization
  mybakat.se/recipes
  mybakat.se/recipes/recipe/slug
 
+generellt
+  - fråga om byte av språk om inte svenska?
+
 blog
   - vad ska visas om ingen post_image är satt på första sidan?

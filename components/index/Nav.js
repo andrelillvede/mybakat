@@ -1,4 +1,6 @@
 import classNames from 'classnames';
+import Link from 'next/link';
+import { t, l } from '../../helpers/translation';
 
 class Nav extends React.Component {
   state = {
@@ -44,15 +46,6 @@ class Nav extends React.Component {
   }
 
   render() {
-    const t = (sv, en) => {
-      if (this.lang === 'en') return en;
-      return sv;
-    };
-
-    const l = (parent, fieldname) => {
-      if (this.lang === 'en') return parent[`${fieldname}_en`];
-      return parent[fieldname];
-    };
     let navClasses = classNames({
       nav: true,
       fixed: this.state.sticky,
@@ -65,10 +58,12 @@ class Nav extends React.Component {
         style={this.props.style}
         className={navClasses}
       >
-        <a href="blog">{t('Blogg', 'Blog')}</a>
-        <a href="recipes">{t('Recept', 'Recipes')}</a>
-        <a href="#">{t('Om mig', 'About me')}</a>
-        <a href="#">{t('Kontakt', 'Contact')}</a>
+        <Link href="blog" prefetch><a>{t(this.lang, 'Blogg', 'Blog')}</a></Link>
+        <Link href="recipes" prefetch>
+          <a>{t(this.lang, 'Recept', 'Recipes')}</a>
+        </Link>
+        <Link href="#"><a>{t(this.lang, 'Om mig', 'About me')}</a></Link>
+        <Link href="#"><a>{t(this.lang, 'Kontakt', 'Contact')}</a></Link>
         <style jsx>{`
           a {
             color: #474747;
@@ -80,10 +75,11 @@ class Nav extends React.Component {
           .nav {
             position: sticky;
             display: flex;
+            z-index: 9999;
             align-items: center;
             justify-content:space-between;
             /*will-change: scroll-position;*/
-            top: 0;
+            top: -1px;
             background-color: #E8E8E8;
             height: 10vh;
             padding: 0 20vw;
