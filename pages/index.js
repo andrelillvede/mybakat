@@ -29,7 +29,7 @@ export default class Index extends React.Component {
   static async getInitialProps() {
     // get frontpage
 
-    const response = await fetch('https://1c33ebcc.ngrok.io/imageCache');
+    const response = await fetch('http://localhost:3000/imageCache');
     const json = await response.json();
 
     const frontpage = await client.getEntries({
@@ -56,7 +56,7 @@ export default class Index extends React.Component {
         }}
       >
         <div className="top">
-          {/* <video autoPlay src={frontpage.intro_media.fields.file.url} /> */}
+          <video autoPlay src={frontpage.intro_media.fields.file.url} />
           <img width="30%" src={frontpage.intro_logo.fields.file.url} />
         </div>
         <div className="main">

@@ -117,29 +117,29 @@ app.prepare().then(() => {
     ssrCache.reset();
     let { url } = req.params;
     url = decodeURI(url);
-
+    const common = {};
     const large = {
       h: 1500,
       w: 1500,
-      auto: 'compress',
+      auto: 'compress,format',
     };
 
     const medium = {
       h: 1000,
       w: 1000,
-      auto: 'compress',
+      auto: 'compress,format',
     };
 
     const small = {
       h: 500,
       w: 500,
-      auto: 'compress',
+      auto: 'compress,format',
     };
 
     const smallest = {
       h: 320,
       w: 320,
-      auto: 'compress',
+      auto: 'compress,format',
     };
 
     const srcSet = {

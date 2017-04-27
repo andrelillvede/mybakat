@@ -23,6 +23,7 @@
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "styled-jsx-postcss": "^0.2",
-    "sw-precache-webpack-plugin": "^0.9.1"
+    "sw-precache-webpack-plugin": "^0.9.1",
+    "webfontloader": "^1.6.27"
   }
 }

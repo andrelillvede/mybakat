@@ -26,11 +26,14 @@ class Instagram extends React.Component {
                 <div key={post.code} className="post">
                   <a href={`https://www.instagram.com/p/${post.code}/`}>
                     <img
-                      src={image(
-                        this.props.cache,
-                        post.display_src,
-                        'smallest'
-                      )}
+                      src={image(this.props.cache, post.display_src, 'large')}
+                      sizes="25vw"
+                      srcSet={`
+                        ${image(this.props.cache, post.display_src, 'smallest')} 200w,
+                        ${image(this.props.cache, post.display_src, 'small')} 400w,
+                        ${image(this.props.cache, post.display_src, 'medium')} 800w,
+                        ${image(this.props.cache, post.display_src, 'large')} 1200w"
+                      `}
                       alt="instagram image"
                     />
                   </a>
