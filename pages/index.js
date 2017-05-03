@@ -26,10 +26,11 @@ export default class Index extends React.Component {
   componentWillMount() {
     this.lang = this.props.url.query.lang;
   }
-  static async getInitialProps() {
+  static async getInitialProps({ req }) {
     // get frontpage
-
-    const response = await fetch('http://localhost:3000/imageCache');
+    let hostname = req ? req.headers.host : window.location.host;
+    let protocol = hostname === 'localhost:3000' ? 'http:' : 'https:';
+    const response = await fetch(`${protocol}//${hostname}/imageCache`);
     const json = await response.json();
 
     const frontpage = await client.getEntries({
@@ -44,7 +45,6 @@ export default class Index extends React.Component {
 
   render() {
     const { frontpage, cache } = this.props;
-    console.log('cache', cache);
     return (
       <div
         style={{

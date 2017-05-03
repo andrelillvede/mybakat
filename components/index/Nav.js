@@ -12,10 +12,10 @@ class Nav extends React.Component {
   componentDidMount() {
     let latestKnownScrollY = 0, ticking = false;
 
-    const onScroll = () => {
+    const onScroll = (this.onScroll = () => {
       latestKnownScrollY = window.scrollY;
       requestTick();
-    };
+    });
 
     const requestTick = () => {
       if (!ticking) {
@@ -45,6 +45,9 @@ class Nav extends React.Component {
     window.addEventListener('scroll', onScroll, false);
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.onScroll, false);
+  }
   render() {
     let navClasses = classNames({
       nav: true,

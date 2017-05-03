@@ -34,7 +34,6 @@ class BlogPosts extends React.Component {
         {!this.state.posts
           ? 'could not load blog posts :('
           : this.state.posts.map(post => {
-              console.log(post);
               return (
                 <div key={post.sys.id} className="post">
                   <a href={`blog/posts/${post.fields.slug}`}>

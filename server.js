@@ -113,32 +113,32 @@ app.prepare().then(() => {
     res.send({ cache: obj });
   });
 
-  server.get('/image/:url/', (req, res) => {
+  server.get('/image/:size/:url', (req, res) => {
     ssrCache.reset();
-    let { url } = req.params;
+    let { url, size } = req.params;
     url = decodeURI(url);
     const common = {};
     const large = {
-      h: 1500,
-      w: 1500,
+      h: 1200,
+      w: 1200,
       auto: 'compress,format',
     };
 
     const medium = {
-      h: 1000,
-      w: 1000,
+      h: 800,
+      w: 800,
       auto: 'compress,format',
     };
 
     const small = {
-      h: 500,
-      w: 500,
+      h: 400,
+      w: 400,
       auto: 'compress,format',
     };
 
     const smallest = {
-      h: 320,
-      w: 320,
+      h: 200,
+      w: 200,
       auto: 'compress,format',
     };
 
@@ -151,17 +151,24 @@ app.prepare().then(() => {
 
     cache.set(url, srcSet);
 
-    res.setHeader('Content-Type', 'application/json');
-    res.send({ srcSet });
+    fetch(srcSet[size]).then(img => img.body.pipe(res));
   });
 
   server.get('/instagram', (req, res) => {
+    const url = 'https://www.instagram.com/mybakat/?__a=1';
     res.setHeader('Content-Type', 'application/json');
-    fetch('https://www.instagram.com/mybakat/?__a=1')
+
+    if (cache.has(url)) {
+      res.send(cache.get(url));
+      return;
+    }
+
+    fetch(url)
       .then(result => result.json())
       .then(json => {
-        console.log();
-        res.send(json.user.media.nodes.slice(0, 9));
+        const posts = json.user.media.nodes.slice(0, 9);
+        cache.set(url, posts);
+        res.send(posts);
       })
       .catch(err => console.error(err));
   });

@@ -21,7 +21,6 @@ class Instagram extends React.Component {
         {!this.state.posts
           ? 'could not load instagram images :('
           : this.state.posts.map(post => {
-              console.log(this.props);
               return (
                 <div key={post.code} className="post">
                   <a href={`https://www.instagram.com/p/${post.code}/`}>
@@ -32,7 +31,7 @@ class Instagram extends React.Component {
                         ${image(this.props.cache, post.display_src, 'smallest')} 200w,
                         ${image(this.props.cache, post.display_src, 'small')} 400w,
                         ${image(this.props.cache, post.display_src, 'medium')} 800w,
-                        ${image(this.props.cache, post.display_src, 'large')} 1200w"
+                        ${image(this.props.cache, post.display_src, 'large')} 1200w
                       `}
                       alt="instagram image"
                     />

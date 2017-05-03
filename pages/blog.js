@@ -2,6 +2,7 @@ import React from 'react';
 import * as contentful from 'contentful';
 import moment from 'moment';
 import marked from 'marked';
+import Link from 'next/link';
 import '../helpers/offline-install';
 
 import { t, l } from '../helpers/translation';
@@ -21,7 +22,6 @@ class Blog extends React.Component {
       content_type: 'blogPost',
       limit: 10,
     });
-    console.log(posts.items);
     return { posts: posts.items };
   }
 
@@ -32,7 +32,9 @@ class Blog extends React.Component {
           <img width="50%" src="static/logo_brown.svg" />
         </div>
         <div className="menu">
-          <div>Hem</div>
+          <div>
+            <Link href="/" prefetch><a>{t(this.lang, 'Hem', 'Home')}</a></Link>
+          </div>
           <div>Sök</div>
           <div>Arkiv</div>
         </div>
@@ -49,10 +51,7 @@ class Blog extends React.Component {
                       {moment(post.sys.createdAt).format('YYYY / MM / DD')}
                     </div>
 
-                    <img
-                      height="100%"
-                      src={post.fields.post_image.fields.file.url}
-                    />
+                    <img src={post.fields.post_image.fields.file.url} />
                     <div className="description">
                       {l(this.lang, post.fields, 'description')}
                     </div>
@@ -76,6 +75,9 @@ class Blog extends React.Component {
           .posts img {
             margin-top: 2em;
             object-fit: contain;
+            width:80vw; /* you can use % */
+            height: auto;
+            max-height: 60vh;
             /*width: 100%;*/
           }
           .top {

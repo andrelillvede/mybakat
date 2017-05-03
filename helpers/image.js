@@ -3,10 +3,7 @@ const image = (cache, url, size) => {
     return cache[url][size];
   } else {
     const encUrl = encodeURIComponent(url);
-    fetch(`/image/${encUrl}`).catch(err => {
-      console.error('could not get imgix url');
-    });
-    return url;
+    return `/image/${size}/${encUrl}`;
   }
 };
 

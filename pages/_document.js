@@ -12,9 +12,6 @@ export default class MyDocument extends Document {
     return (
       <html>
         <Head>
-          <link href="https://fonts.googleapis.com/css?family=Montserrat|Raleway" rel="stylesheet" />
-          <link href="https://fonts.googleapis.com/css?family=Playfair+Display|Noto+Serif" rel="stylesheet" />
-
           <link rel="apple-touch-icon" sizes="180x180" href="/static/favicons/apple-touch-icon.png" />
           <link rel="icon" type="image/png" sizes="32x32" href="/static/favicons/favicon-32x32.png" />
           <link rel="icon" type="image/png" sizes="16x16" href="/static/favicons/favicon-16x16.png" />
@@ -50,10 +47,38 @@ export default class MyDocument extends Document {
            `
             }
           </style>
+
         </Head>
         <body>
           <Main />
           <NextScript />
+          <style jsx global>{`
+            @font-face {
+              font-family: 'Playfair Display';
+              font-style: normal;
+              font-weight: 400;
+              src: url('/static/fonts/playfair-display-v10-latin-regular.eot'); /* IE9 Compat Modes */
+              src: local('Playfair Display'), local('PlayfairDisplay-Regular'),
+                   url('/static/fonts/playfair-display-v10-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+                   url('/static/fonts/playfair-display-v10-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+                   url('/static/fonts/playfair-display-v10-latin-regular.woff') format('woff'), /* Modern Browsers */
+                   url('/static/fonts/playfair-display-v10-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+                   url('/static/fonts/playfair-display-v10-latin-regular.svg#PlayfairDisplay') format('svg'); /* Legacy iOS */
+            }
+
+            @font-face {
+              font-family: 'Raleway';
+              font-style: normal;
+              font-weight: 400;
+              src: url('/static/fonts/raleway-v11-latin-regular.eot'); /* IE9 Compat Modes */
+              src: local('Raleway'), local('Raleway-Regular'),
+                   url('/static/fonts/raleway-v11-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+                   url('/static/fonts/raleway-v11-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+                   url('/static/fonts/raleway-v11-latin-regular.woff') format('woff'), /* Modern Browsers */
+                   url('/static/fonts/raleway-v11-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+                   url('/static/fonts/raleway-v11-latin-regular.svg#Raleway') format('svg'); /* Legacy iOS */
+            }            
+            `}</style>
         </body>
       </html>
     );
