@@ -36,7 +36,7 @@ class BlogPosts extends React.Component {
           : this.state.posts.map(post => {
               return (
                 <div key={post.sys.id} className="post">
-                  <a href={`blog/posts/${post.fields.slug}`}>
+                  <a href={`blog/post/${post.fields.slug}`}>
                     <img
                       src={image(
                         this.props.cache,

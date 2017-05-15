@@ -57,7 +57,7 @@ class Blog extends React.Component {
                     </div>
                     <a
                       className="read-more"
-                      href={`blog/posts/${post.fields.slug}`}
+                      href={`blog/post/${post.fields.slug}`}
                     >
                       {t(this.lang, 'Läs mer', 'Read more')}
                     </a>
