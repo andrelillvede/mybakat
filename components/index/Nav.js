@@ -1,15 +1,30 @@
-import classNames from 'classnames';
 import Link from 'next/link';
-import { t, l } from '../../helpers/translation';
+import Router from 'next/router';
+import Head from 'next/head';
+
+import classNames from 'classnames';
+import NProgress from 'nprogress';
+import scrollTo from 'scroll-to-element';
+
+import { t, l, link } from '../../helpers/translation';
+import { initGA, logPageView } from '../../helpers/ga';
 
 class Nav extends React.Component {
   state = {
     sticky: false,
   };
   componentWillMount() {
+    Router.onRouteChangeStart = url => {
+      console.log(`Loading: ${url}`);
+      NProgress.start();
+    };
+    Router.onRouteChangeComplete = () => NProgress.done();
+    Router.onRouteChangeError = () => NProgress.done();
     this.lang = this.props.lang;
   }
   componentDidMount() {
+    initGA();
+    logPageView();
     let latestKnownScrollY = 0, ticking = false;
 
     const onScroll = (this.onScroll = () => {
@@ -61,33 +76,122 @@ class Nav extends React.Component {
         style={this.props.style}
         className={navClasses}
       >
-        <Link href="blog" prefetch><a>{t(this.lang, 'Blogg', 'Blog')}</a></Link>
-        <Link href="recipes" prefetch>
-          <a>{t(this.lang, 'Recept', 'Recipes')}</a>
-        </Link>
-        <Link href="#"><a>{t(this.lang, 'Om mig', 'About me')}</a></Link>
-        <Link href="#"><a>{t(this.lang, 'Kontakt', 'Contact')}</a></Link>
+        <Head>
+          {/* Import CSS for nprogress */}
+          <link rel="stylesheet" type="text/css" href="/static/nprogress.css" />
+        </Head>
+        <img className="small-logo" src="/static/logo_white.svg" />
+        <div className="links">
+          <Link
+            href={{ pathname: `/blog`, query: { lang: this.lang } }}
+            as={link(this.lang, `/blog`)}
+            prefetch
+          >
+            <a>{t(this.lang, 'Blogg', 'Blog')}</a>
+          </Link>
+          {/* <Link href="recipes" prefetch>
+            <a>{t(this.lang, 'Recept', 'Recipes')}</a>
+          </Link> */}
+
+          <a
+            href="#"
+            onClick={e => {
+              e.preventDefault();
+              scrollTo('#about', {
+                align: 'middle',
+                ease: 'in-cube',
+                duration: 600,
+              });
+            }}
+          >
+            {t(this.lang, 'Om mig', 'About me')}
+          </a>
+
+          <a
+            href="#"
+            onClick={e => {
+              e.preventDefault();
+              scrollTo('#contact', {
+                align: 'middle',
+                ease: 'in-cube',
+                duration: 600,
+              });
+            }}
+          >
+            {t(this.lang, 'Kontakt', 'Contact')}
+          </a>
+        </div>
         <style jsx>{`
           a {
-            color: #474747;
+            color: white;
             text-decoration: none;
             &:hover {
-              color: yellow;
+              color: #4287ab;
             }
           }
           .nav {
+            transition: height 0.2s, line-height 0.2s, padding 0.2s, box-shadow 0.5s;
             position: sticky;
-            display: flex;
+            /*display: flex;*/
             z-index: 9999;
-            align-items: center;
-            justify-content:space-between;
+            /*align-items: center;*/
+            /*justify-content:space-between;*/
             /*will-change: scroll-position;*/
             top: -1px;
-            background-color: #E8E8E8;
+            background-color: rgb(74, 48, 20);
             height: 10vh;
-            padding: 0 20vw;
+            width: 100vw;
+            padding: 0 25vw;
+            line-height: 10vh;
             margin-bottom: 3em;
-            font-family: 'Raleway', sans-serif;
+
+            & .small-logo {
+              transition: opacity 0.8s;
+              position: absolute;
+              left: 1em;
+              top: 1.5vh;
+              line-height: 10vh;
+              opacity: 0;
+              height: 0px;
+            }
+
+            & .links {
+              transition: width 0.2s, font-size 0.2s ;
+              display: flex;
+              justify-content: space-between;
+              width: 50vw;
+              font-size: 1.2em;
+            }
+          }
+
+          .nav.fixed {
+            height: 6vh;
+            line-height: 6vh;
+            padding: 0 0 0 70vw;
+            box-shadow: 0px 1px 4px #6e6e6e;
+            & .small-logo {
+              opacity: 1;
+              height: 3vh;
+            }
+            & .links {
+              display: flex;
+              justify-content: space-between;
+              width: calc(30vw - 1em);
+              margin-right: 1em;
+              font-size: 1em;
+            }
+          }
+          @media screen and (max-width: 768px) {
+            .nav.fixed {
+              padding: 0 0 0 60vw;
+              & .links {
+                display: flex;
+                justify-content: space-between;
+                width: calc(40vw - 1em);
+                margin-right: 1em;
+                font-size: 1em;
+              }
+            }
           }
           `}</style>
       </div>

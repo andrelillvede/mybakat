@@ -47,17 +47,23 @@ class Instagram extends React.Component {
             justify-content: space-between;
           }
           .post {
-            width: 30%;
+            width: 21%;
             margin: 2em 0;
           }
           img {
             width: 100%;
+            border: 2px solid #E8E8E8;
             &:hover {
               position:relative;
-              top: -10px;
-              left: -10px;
-              box-shadow: 10px 10px 0px 0px #603913;
+              top: -5px;
+              left: -5px;
+              box-shadow: 5px 5px 0px 0px #CfCfCf;
             }
+          }
+          @media screen and (max-width: 768px) {
+              .post {
+                width: 48%;              
+              }
           }
           `}</style>
       </div>

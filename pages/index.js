@@ -1,6 +1,7 @@
 import React from 'react';
 import * as contentful from 'contentful';
 import 'isomorphic-fetch';
+import objectFitVideos from 'object-fit-videos';
 
 import '../helpers/offline-install';
 import { t, l } from '../helpers/translation';
@@ -22,10 +23,24 @@ export default class Index extends React.Component {
       instagramPosts: [],
       blogPosts: [],
     };
+    this.getSection = this.getSection.bind(this);
   }
   componentWillMount() {
     this.lang = this.props.url.query.lang;
   }
+  componentDidMount() {
+    objectFitVideos();
+
+    this.video.addEventListener('loadedmetadata', getmetadata);
+    const getmetadata = () => {
+      this.video.play();
+    };
+
+    if (this.video.readyState >= 2) {
+      getmetadata();
+    }
+  }
+
   static async getInitialProps({ req }) {
     // get frontpage
     let hostname = req ? req.headers.host : window.location.host;
@@ -42,7 +57,9 @@ export default class Index extends React.Component {
       cache: json.cache,
     };
   }
-
+  getSection(name) {
+    return this[name];
+  }
   render() {
     const { frontpage, cache } = this.props;
     return (
@@ -55,13 +72,31 @@ export default class Index extends React.Component {
           bottom: '0',
         }}
       >
+        <Head>
+          {/* <meta property="og:url"                content="http://www.nytimes.com/2015/02/19/arts/international/when-great-minds-dont-think-alike.html" />
+          <meta property="og:title"              content="Mybakat" />
+          <meta property="og:description"        content="How much does culture influence creative thinking?" />
+          <meta property="og:image"              content="http://static01.nyt.com/images/2015/02/19/arts/international/19iht-btnumbers19A/19iht-btnumbers19A-facebookJumbo-v2.jpg" />         */}
+        </Head>
         <div className="top">
-          <video autoPlay src={frontpage.intro_media.fields.file.url} />
+          <video
+            autoPlay
+            muted
+            playsInline
+            src={frontpage.intro_media.fields.file.url}
+            ref={e => {
+              this.video = e;
+            }}
+          />
           <img width="30%" src={frontpage.intro_logo.fields.file.url} />
+
+          <div className="language">
+            <a href="/">Sv</a> | <a href="/en">En</a>
+          </div>
         </div>
         <div className="main">
-          <Nav lang={this.lang} />
-          <div className="section">
+          <Nav lang={this.lang} getSection={this.getSection} />
+          <div id="about" className="section">
             <h2>{t(this.lang, 'Om', 'About')}</h2>
             {l(frontpage, 'about')}
           </div>
@@ -73,11 +108,27 @@ export default class Index extends React.Component {
             <h2>{t(this.lang, 'Senaste inläggen', 'Latest posts')}</h2>
             <BlogPosts lang={this.lang} {...this.props} />
           </div>
+          <div id="contact" className="section">
+            <h2>{t(this.lang, 'Kontakt', 'Contact')}</h2>
+            <a href="http://eepurl.com/cRdoVf" target="_blank">Mail</a>
+          </div>
         </div>
         <style jsx>{`
           h2 {
+            font-family: 'Playfair Display', serif;
             font-size: 2em;
-            margin: 0;
+            margin: 2em 0 0 0;
+          }
+          .language {
+            position: absolute;
+            top: 1em;
+            right: 1em;
+            font-size: 1rem;
+            color: white;
+            & a {
+              color: white;
+              text-decoration: none;
+            }
           }
           .top {
             background-color: black;
@@ -114,6 +165,7 @@ export default class Index extends React.Component {
             height: 100vh;
             width: 100vw;
             object-fit: cover;
+            font-family: 'object-fit: cover;';
             z-index: -1;
           }
           `}</style>

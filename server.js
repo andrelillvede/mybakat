@@ -166,7 +166,7 @@ app.prepare().then(() => {
     fetch(url)
       .then(result => result.json())
       .then(json => {
-        const posts = json.user.media.nodes.slice(0, 9);
+        const posts = json.user.media.nodes.slice(0, 12);
         cache.set(url, posts);
         res.send(posts);
       })
@@ -188,26 +188,30 @@ function getCacheKey(req) {
 }
 
 function renderAndCache(req, res, pagePath, queryParams) {
-  const key = getCacheKey(req);
-
-  // If we have a page in the cache, let's serve it
-  if (ssrCache.has(key)) {
-    console.log(`CACHE HIT: ${key}`);
-    res.send(ssrCache.get(key));
-    return;
-  }
-
-  // If not let's render the page into HTML
-  app
-    .renderToHTML(req, res, pagePath, queryParams)
-    .then(html => {
-      // Let's cache this page
-      console.log(`CACHE MISS: ${key}`);
-      ssrCache.set(key, html);
-
-      res.send(html);
-    })
-    .catch(err => {
-      app.renderError(err, req, res, pagePath, queryParams);
-    });
+  app.render(req, res, pagePath, queryParams);
 }
+
+// function renderAndCache(req, res, pagePath, queryParams) {
+//   const key = getCacheKey(req);
+//
+//   // If we have a page in the cache, let's serve it
+//   if (ssrCache.has(key)) {
+//     console.log(`CACHE HIT: ${key}`);
+//     res.send(ssrCache.get(key));
+//     return;
+//   }
+//
+//   // If not let's render the page into HTML
+//   app
+//     .renderToHTML(req, res, pagePath, queryParams)
+//     .then(html => {
+//       // Let's cache this page
+//       console.log(`CACHE MISS: ${key}`);
+//       ssrCache.set(key, html);
+//
+//       res.send(html);
+//     })
+//     .catch(err => {
+//       app.renderError(err, req, res, pagePath, queryParams);
+//     });
+// }

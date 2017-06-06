@@ -2,8 +2,9 @@ import React from 'react';
 import * as contentful from 'contentful';
 import moment from 'moment';
 import Link from 'next/link';
+import objectFitImages from 'object-fit-images';
 
-import { t, l } from '../../helpers/translation.js';
+import { t, l, link } from '../../helpers/translation.js';
 import image from '../../helpers/image';
 
 const client = contentful.createClient({
@@ -27,6 +28,8 @@ class BlogPosts extends React.Component {
     client.getEntries({ content_type: 'blogPost', limit: 6 }).then(posts => {
       this.setState({ posts: posts.items });
     });
+
+    objectFitImages();
   }
   render() {
     return (
@@ -36,19 +39,24 @@ class BlogPosts extends React.Component {
           : this.state.posts.map(post => {
               return (
                 <div key={post.sys.id} className="post">
-                  <a href={`blog/post/${post.fields.slug}`}>
-                    <img
-                      src={image(
-                        this.props.cache,
-                        'https:' + post.fields.post_image.fields.file.url,
-                        'small'
-                      )}
-                    />
-                    <div className="info">
-                      {l(this.lang, post.fields, 'title')}<br />
-                      {moment(post.sys.createdAt).format('YYYY/MM/DD')}
-                    </div>
-                  </a>
+                  <Link
+                    href={{ pathname: `/post`, query: { lang: this.lang } }}
+                    as={link(this.lang, `/blog/post/${post.fields.slug}`)}
+                  >
+                    <a>
+                      <img
+                        src={image(
+                          this.props.cache,
+                          'https:' + post.fields.post_image.fields.file.url,
+                          'small'
+                        )}
+                      />
+                      <div className="info">
+                        {l(this.lang, post.fields, 'title')}<br />
+                        {moment(post.sys.createdAt).format('YYYY/MM/DD')}
+                      </div>
+                    </a>
+                  </Link>
                 </div>
               );
             })}
@@ -85,15 +93,16 @@ class BlogPosts extends React.Component {
             border: 2px solid #E8E8E8;
             &:hover {
               position:relative;
-              top: -10px;
-              left: -10px;
-              box-shadow: 10px 10px 0px 0px #603913;
+              top: -5px;
+              left: -5px;
+              box-shadow: 5px 5px 0px 0px #CFCFCF;
             }
           }
           img {
             object-fit: cover;
+            font-family: 'object-fit: cover;';
             width: 100%;
-            height: 70%;
+            height: 80%;
           }
 
           @media screen and (max-width: 768px) {

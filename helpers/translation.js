@@ -8,4 +8,8 @@ const l = (lang, parent, fieldname) => {
   return parent[fieldname];
 };
 
-export { t, l };
+const link = (lang, sv) => {
+  if (lang === 'en') return `/en${sv}`;
+  return sv || '/';
+};
+export { t, l, link };

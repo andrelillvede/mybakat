@@ -3,11 +3,19 @@ import * as contentful from 'contentful';
 import moment from 'moment';
 import marked from 'marked';
 import Link from 'next/link';
+
+import NProgress from 'nprogress';
+import Router from 'next/router';
+import Head from 'next/head';
+
 import '../helpers/offline-install';
 import image from '../helpers/image';
+import { initGA, logPageView } from '../helpers/ga';
 import 'isomorphic-fetch';
 
 import { t, l } from '../helpers/translation';
+
+import Cover from '../components/post/Cover';
 
 const client = contentful.createClient({
   space: 'u7wcr26n3tea',
@@ -15,8 +23,23 @@ const client = contentful.createClient({
 });
 
 class Post extends React.Component {
+  constructor(props) {
+    super(props);
+    this.contentFixed = this.contentFixed.bind(this);
+  }
   componentWillMount() {
+    Router.onRouteChangeStart = url => {
+      console.log(`Loading: ${url}`);
+      NProgress.start();
+    };
+    Router.onRouteChangeComplete = () => NProgress.done();
+    Router.onRouteChangeError = () => NProgress.done();
     this.lang = this.props.url.query.lang;
+    console.log(this.props);
+  }
+  componentDidMount() {
+    initGA();
+    logPageView();
   }
 
   static async getInitialProps({ req, asPath }) {
@@ -27,7 +50,6 @@ class Post extends React.Component {
 
     const parts = asPath.split('/');
     const slug = parts.pop() || parts.pop();
-
     const posts = await client.getEntries({
       content_type: 'blogPost',
       'fields.slug': slug,
@@ -36,25 +58,51 @@ class Post extends React.Component {
     return { post: posts.items[0], cache: json.cache };
   }
 
+  contentFixed(fixed) {
+    if (fixed) {
+      this.postRef.style.position = 'fixed';
+      this.postRef.style.top = '0px';
+    } else {
+      this.postRef.style.position = 'relative';
+      this.postRef.style.top = '100vh';
+    }
+  }
+
   render() {
     const { post } = this.props;
+    const { postRef } = this.props;
+
     return (
       <div className="post">
-        <div className="top">
-          <img src="/static/logo_brown.svg" />
-          <div className="menu">
-            <div>
-              <Link href="/" prefetch>
-                <a>{t(this.lang, 'Hem', 'Home')}</a>
-              </Link>
-            </div>
-            <div>Sök</div>
-            <div>Arkiv</div>
+        <Head>
+          {/* Import CSS for nprogress */}
+          <link rel="stylesheet" type="text/css" href="/static/nprogress.css" />
+        </Head>
+        <Cover
+          lang={this.lang}
+          contentFixed={this.contentFixed}
+          coverImg={post.fields.post_image.fields.file.url}
+        >
+          <div className="language">
+            <a href={`/blog/post/${post.fields.slug}`}>Sv</a>
+            {' '}
+            |
+            {' '}
+            <a href={`/en/blog/post/${post.fields.slug}`}>En</a>
           </div>
-        </div>
+          <div className="title">{l(this.lang, post.fields, 'title')}</div>
+          <div className="date">
+            {moment(post.sys.createdAt).format('YYYY/MM/DD')}
+          </div>
+        </Cover>
         {!post
           ? 'could not load blog post :('
-          : <div>
+          : <div
+              className="content"
+              ref={postRef => {
+                this.postRef = postRef;
+              }}
+            >
               <div className="title">{l(this.lang, post.fields, 'title')}</div>
               <div className="date">
                 {moment(post.sys.createdAt).format('YYYY/MM/DD')}
@@ -74,7 +122,43 @@ class Post extends React.Component {
                 }}
               />
 
-              recipe: {JSON.stringify(post.fields.recipe)}
+              {post.fields.recipe
+                ? post.fields.recipe.map(recipe => {
+                    return (
+                      <div key={recipe.fields.title} className="recipe">
+                        <h2>{l(this.lang, recipe.fields, 'title')}</h2>
+                        <div className="fields">
+                          <div className="ingredients">
+                            <h3>
+                              {t(this.lang, 'Ingredienser', 'Ingredients')}
+                            </h3>
+                            <div
+                              className="text"
+                              dangerouslySetInnerHTML={{
+                                __html: marked(
+                                  l(this.lang, recipe.fields, 'ingredients')
+                                ),
+                              }}
+                            />
+                          </div>
+                          <div className="instructions">
+                            <h3>
+                              {t(this.lang, 'Instruktioner', 'Instructions')}
+                            </h3>
+                            <div
+                              className="text"
+                              dangerouslySetInnerHTML={{
+                                __html: marked(
+                                  l(this.lang, recipe.fields, 'instructions')
+                                ),
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                : ''}
 
             </div>}
         <style jsx>{`
@@ -83,69 +167,88 @@ class Post extends React.Component {
             color: black;
             justify-content: space-between;
           }
-
-          .top {
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 3em;
-          }
-
-          .top img {
-            margin-top: 1em;
-            margin-left: 1em;
-            width: 7em;
-          }
-
-          .menu {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            font-family: 'Playfair Display', serif;
-            letter-spacing: 0.05em;
-            margin-top: 1em;
-            margin-right: 1em;
-            & > div:not(:last-child) {
-              margin-right: 1em;
+          .language {
+            position: absolute;
+            top: 1em;
+            right: 1em;
+            font-size: 1rem;
+            color: white;
+            & a {
+              color: white;
+              text-decoration: none;
             }
           }
-          .blog {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-          }
-
           .post {
-            position: relative;
             display: flex;
             flex-direction: column;
             height: 100%;
             width: 100%;
             justify-content: space-between;
-            text-align: center;
-            margin-bottom: 4em;
 
             & .text {
-              padding: 0 5em;
-              text-align: left;
+              margin-top: 1.5em;
+
+            }
+          }
+
+          .content {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1;
+            padding: 4em;
+            & :global(h2), & :global(h3) {
+              font-family: 'Playfair Display', serif;
+              font-weight: normal;
+              margin-bottom: 0;
+            }
+
+            & :global(ul) {
+              margin: 0;
+              padding: 0 0 0 0.2rem;
+              list-style: none;
+            }
+
+            & .recipe {
+              border: 1px black dotted;
+              padding: 2em;
+              margin-top: 3em;
+              & h2 {
+                margin-top: 0;
+              }
+              & .text {
+                margin: 0.7rem 0;
+              }
+              & .fields {
+                display: flex;
+                flex-flow: row;
+                justify-content: space-between;
+
+                & .ingredients {
+                  margin-right: 3em;
+                }
+              }
+              @media screen and (max-width: 600px) {
+                & .fields {
+                  flex-flow: column;
+                }
+              }
             }
           }
           .title, .date {
             font-family: 'Playfair Display', serif;
+            font-style: italic;
             font-weight: normal;
-            font-weight: normal;
-            letter-spacing: 0.2em;
           }
 
           .title {
-            font-size: 2em;
+            font-size: 1.8em;
             margin-bottom: 0;
           }
 
           .date {
-            font-size: 0.8em;
+            font-size: 1em;
           }
           .description {
             margin-top: 1em;
