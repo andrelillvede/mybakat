@@ -56,7 +56,7 @@ class Cover extends React.Component {
         />
 
         <div className="top">
-          <img className="logo" src="/static/logo_white.svg" />
+          <img className="logo" src="/static/logo_white.svg" alt="logo" />
           <div className="menu">
             <div>
               <Link
@@ -64,7 +64,16 @@ class Cover extends React.Component {
                 as={link(this.lang, ``)}
                 prefetch
               >
-                <a>{t(this.lang, 'Hem', 'Home')}</a>
+                <a style={{ marginRight: '2em' }}>
+                  {t(this.lang, 'Hem', 'Home')}
+                </a>
+              </Link>
+              <Link
+                href={{ pathname: `/blog`, query: { lang: this.lang } }}
+                as={link(this.lang, `/blog`)}
+                prefetch
+              >
+                <a>{t(this.lang, 'Blogg', 'Blog')}</a>
               </Link>
             </div>
             {/* <div>Sök</div>

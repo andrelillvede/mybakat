@@ -1,5 +1,4 @@
 import React from 'react';
-import * as contentful from 'contentful';
 import moment from 'moment';
 import marked from 'marked';
 import Link from 'next/link';
@@ -17,11 +16,6 @@ import { t, l } from '../helpers/translation';
 
 import Cover from '../components/post/Cover';
 
-const client = contentful.createClient({
-  space: 'u7wcr26n3tea',
-  accessToken: '29877f03e59850cb986f083f575e7f9532ca1667ca4c5b855739210a74c8cdad',
-});
-
 class Post extends React.Component {
   constructor(props) {
     super(props);
@@ -35,26 +29,35 @@ class Post extends React.Component {
     Router.onRouteChangeComplete = () => NProgress.done();
     Router.onRouteChangeError = () => NProgress.done();
     this.lang = this.props.url.query.lang;
-    console.log(this.props);
   }
   componentDidMount() {
     initGA();
     logPageView();
+    if (window.WPac) {
+      window.WPac.init([{ widget: 'Comment', id: 5825 }]);
+    }
   }
 
   static async getInitialProps({ req, asPath }) {
     let hostname = req ? req.headers.host : window.location.host;
-    let protocol = hostname === 'localhost:3000' ? 'http:' : 'https:';
+    let protocol = hostname === 'localhost:5000' ? 'http:' : 'https:';
     const response = await fetch(`${protocol}//${hostname}/imageCache`);
     const json = await response.json();
 
     const parts = asPath.split('/');
     const slug = parts.pop() || parts.pop();
-    const posts = await client.getEntries({
+
+    const query = JSON.stringify({
       content_type: 'blogPost',
       'fields.slug': slug,
       limit: 1,
     });
+
+    const postsContentful = await fetch(
+      `${protocol}//${hostname}/contentful/get_entries/${query}`
+    );
+    const posts = await postsContentful.json();
+
     return { post: posts.items[0], cache: json.cache };
   }
 
@@ -77,6 +80,7 @@ class Post extends React.Component {
         <Head>
           {/* Import CSS for nprogress */}
           <link rel="stylesheet" type="text/css" href="/static/nprogress.css" />
+          <script type="text/javascript" src="/static/widgetPack.js" />
         </Head>
         <Cover
           lang={this.lang}
@@ -160,8 +164,14 @@ class Post extends React.Component {
                   })
                 : ''}
 
+              <div id="wpac-comment" />
             </div>}
         <style jsx>{`
+          #wpac-comment {
+            margin: 0 auto;
+            margin-top: 10em;
+            width: 60vw;
+          }
           a {
             text-decoration: underline;
             color: black;

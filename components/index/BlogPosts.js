@@ -7,11 +7,6 @@ import objectFitImages from 'object-fit-images';
 import { t, l, link } from '../../helpers/translation.js';
 import image from '../../helpers/image';
 
-const client = contentful.createClient({
-  space: 'u7wcr26n3tea',
-  accessToken: '29877f03e59850cb986f083f575e7f9532ca1667ca4c5b855739210a74c8cdad',
-});
-
 class BlogPosts extends React.Component {
   constructor() {
     super();
@@ -25,9 +20,17 @@ class BlogPosts extends React.Component {
   }
 
   componentDidMount() {
-    client.getEntries({ content_type: 'blogPost', limit: 6 }).then(posts => {
-      this.setState({ posts: posts.items });
-    });
+    let hostname = window.location.host;
+    let protocol = hostname === 'localhost:5000' ? 'http:' : 'https:';
+
+    const query = JSON.stringify({ content_type: 'blogPost', limit: 6 });
+
+    fetch(`${protocol}//${hostname}/contentful/get_entries/${query}`)
+      .then(response => response.json())
+      .then(posts => {
+        console.log(posts);
+        this.setState({ posts: posts.items });
+      });
 
     objectFitImages();
   }
@@ -44,13 +47,16 @@ class BlogPosts extends React.Component {
                     as={link(this.lang, `/blog/post/${post.fields.slug}`)}
                   >
                     <a>
-                      <img
-                        src={image(
-                          this.props.cache,
-                          'https:' + post.fields.post_image.fields.file.url,
-                          'small'
-                        )}
-                      />
+                      <div className="image">
+                        <img
+                          src={image(
+                            this.props.cache,
+                            'https:' + post.fields.post_image.fields.file.url,
+                            'small'
+                          )}
+                          alt="post image"
+                        />
+                      </div>
                       <div className="info">
                         {l(this.lang, post.fields, 'title')}<br />
                         {moment(post.sys.createdAt).format('YYYY/MM/DD')}
@@ -83,14 +89,18 @@ class BlogPosts extends React.Component {
             margin-top: 2em;
           }
 
-          .info {
-            padding: 1em;
-          }
           .post {
             width: 25%;
             height: 30vw;
             margin: 2em 0;
             border: 2px solid #E8E8E8;
+            & .image {
+              height: 70%;
+            }
+            & .info {
+              padding: 11% 6%;
+              height: 30%;
+            }
             &:hover {
               position:relative;
               top: -5px;
@@ -102,13 +112,14 @@ class BlogPosts extends React.Component {
             object-fit: cover;
             font-family: 'object-fit: cover;';
             width: 100%;
-            height: 80%;
+            height: 100%;
           }
 
           @media screen and (max-width: 768px) {
               .post {
                 width: 48%;
                 height: 60vw;
+                font-size: 1.2em;
               }
           }
           `}</style>

@@ -1,7 +1,9 @@
 import React from 'react';
-import * as contentful from 'contentful';
 import 'isomorphic-fetch';
 import objectFitVideos from 'object-fit-videos';
+import Head from 'next/head';
+import marked from 'marked';
+import classNames from 'classnames';
 
 import '../helpers/offline-install';
 import { t, l } from '../helpers/translation';
@@ -11,17 +13,13 @@ import Nav from '../components/index/Nav';
 import Instagram from '../components/index/Instagram';
 import BlogPosts from '../components/index/BlogPosts';
 
-const client = contentful.createClient({
-  space: 'u7wcr26n3tea',
-  accessToken: '29877f03e59850cb986f083f575e7f9532ca1667ca4c5b855739210a74c8cdad',
-});
-
 export default class Index extends React.Component {
   constructor() {
     super();
     this.state = {
       instagramPosts: [],
       blogPosts: [],
+      logoHidden: true,
     };
     this.getSection = this.getSection.bind(this);
   }
@@ -39,20 +37,41 @@ export default class Index extends React.Component {
     if (this.video.readyState >= 2) {
       getmetadata();
     }
+
+    const loaded = () => {
+      this.setState({
+        logoHidden: false,
+      });
+    };
+
+    if (this.logo.complete) {
+      loaded();
+    } else {
+      this.logo.addEventListener('load', loaded);
+      this.logo.addEventListener('error', function() {
+        console.error('could not load logo');
+      });
+    }
   }
 
   static async getInitialProps({ req }) {
     // get frontpage
     let hostname = req ? req.headers.host : window.location.host;
-    let protocol = hostname === 'localhost:3000' ? 'http:' : 'https:';
+    let protocol = hostname === 'localhost:5000' ? 'http:' : 'https:';
     const response = await fetch(`${protocol}//${hostname}/imageCache`);
     const json = await response.json();
 
-    const frontpage = await client.getEntries({
+    const query = JSON.stringify({
       'sys.id': '3ZCxovbELKgoOUEeIOsu8q',
     });
 
+    const frontpageContentful = await fetch(
+      `${protocol}//${hostname}/contentful/get_entries/${query}`
+    );
+    const frontpage = await frontpageContentful.json();
+
     return {
+      location: `${protocol}//${hostname}`,
       frontpage: frontpage.items[0].fields,
       cache: json.cache,
     };
@@ -61,6 +80,10 @@ export default class Index extends React.Component {
     return this[name];
   }
   render() {
+    let logoClasses = classNames({
+      logo: true,
+      hidden: this.state.logoHidden,
+    });
     const { frontpage, cache } = this.props;
     return (
       <div
@@ -73,22 +96,34 @@ export default class Index extends React.Component {
         }}
       >
         <Head>
-          {/* <meta property="og:url"                content="http://www.nytimes.com/2015/02/19/arts/international/when-great-minds-dont-think-alike.html" />
-          <meta property="og:title"              content="Mybakat" />
-          <meta property="og:description"        content="How much does culture influence creative thinking?" />
-          <meta property="og:image"              content="http://static01.nyt.com/images/2015/02/19/arts/international/19iht-btnumbers19A/19iht-btnumbers19A-facebookJumbo-v2.jpg" />         */}
+          <title>Mybakat</title>
+          <meta property="og:url" content="https://mybakat.se" />
+          <meta property="og:title" content="Mybakat" />
+          <meta property="og:description" content="Mybakat" />
+          <meta
+            property="og:image"
+            content="https://mybakat.se/static/logo_brown.svg"
+          />
         </Head>
         <div className="top">
           <video
             autoPlay
             muted
             playsInline
-            src={frontpage.intro_media.fields.file.url}
+            src="/static/dreams.mp4"
             ref={e => {
               this.video = e;
             }}
           />
-          <img width="30%" src={frontpage.intro_logo.fields.file.url} />
+          <img
+            width="30%"
+            src={frontpage.intro_logo.fields.file.url}
+            alt="logo"
+            className={logoClasses}
+            ref={e => {
+              this.logo = e;
+            }}
+          />
 
           <div className="language">
             <a href="/">Sv</a> | <a href="/en">En</a>
@@ -97,8 +132,22 @@ export default class Index extends React.Component {
         <div className="main">
           <Nav lang={this.lang} getSection={this.getSection} />
           <div id="about" className="section">
-            <h2>{t(this.lang, 'Om', 'About')}</h2>
-            {l(frontpage, 'about')}
+
+            <div
+              className="about"
+              dangerouslySetInnerHTML={{
+                __html: `<img src=${image(this.props.cache, this.props.location + '/static/hel.jpg', 'large')}
+                sizes="25vw"
+                srcset="
+                  ${image(this.props.cache, this.props.location + '/static/hel.jpg', 'smallest')} 200w,
+                  ${image(this.props.cache, this.props.location + '/static/hel.jpg', 'small')} 400w,
+                  ${image(this.props.cache, this.props.location + '/static/hel.jpg', 'medium')} 800w,
+                  ${image(this.props.cache, this.props.location + '/static/hel.jpg', 'large')} 1200w"
+                alt="picture of author"
+               />${marked(l(this.lang, frontpage, 'about'))}`,
+              }}
+            />
+            <div style={{ clear: 'both' }} />
           </div>
           <div className="section">
             <h2>Instagram</h2>
@@ -108,15 +157,29 @@ export default class Index extends React.Component {
             <h2>{t(this.lang, 'Senaste inläggen', 'Latest posts')}</h2>
             <BlogPosts lang={this.lang} {...this.props} />
           </div>
-          <div id="contact" className="section">
-            <h2>{t(this.lang, 'Kontakt', 'Contact')}</h2>
-            <a href="http://eepurl.com/cRdoVf" target="_blank">Mail</a>
-          </div>
+          <footer />
         </div>
         <style jsx>{`
+          :global(p:first-of-type) {
+            margin-top: 0;
+          }
+          #about {
+            /*display: flex;
+            flex-flow: row;
+            align-items: flex-start;*/
+            & .about {
+              width: 100%;
+              float:left;
+              & :global(img) {
+                float:right;
+                width: 40%;
+                padding: 0 0 1em 1em;
+              }
+            }
+          }
           h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 2em;
+            font-size: 1.3em;
             margin: 2em 0 0 0;
           }
           .language {
@@ -167,6 +230,16 @@ export default class Index extends React.Component {
             object-fit: cover;
             font-family: 'object-fit: cover;';
             z-index: -1;
+          }
+          .logo {
+            transition: opacity 1.5s;
+          }
+          .hidden {
+            opacity: 0;
+          }
+          footer {
+            height: 4em;
+            background-color: rgb(74, 48, 20);
           }
           `}</style>
       </div>

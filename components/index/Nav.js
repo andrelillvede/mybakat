@@ -78,16 +78,16 @@ class Nav extends React.Component {
       >
         <Head>
           {/* Import CSS for nprogress */}
-          <link rel="stylesheet" type="text/css" href="/static/nprogress.css" />
+
         </Head>
-        <img className="small-logo" src="/static/logo_white.svg" />
+        <img className="small-logo" src="/static/logo_white.svg" alt="logo" />
         <div className="links">
           <Link
             href={{ pathname: `/blog`, query: { lang: this.lang } }}
             as={link(this.lang, `/blog`)}
             prefetch
           >
-            <a>{t(this.lang, 'Blogg', 'Blog')}</a>
+            <a className="link">{t(this.lang, 'Blogg', 'Blog')}</a>
           </Link>
           {/* <Link href="recipes" prefetch>
             <a>{t(this.lang, 'Recept', 'Recipes')}</a>
@@ -104,10 +104,10 @@ class Nav extends React.Component {
               });
             }}
           >
-            {t(this.lang, 'Om mig', 'About me')}
+            {t(this.lang, 'Om Mybakat', 'About Mybakat')}
           </a>
 
-          <a
+          {/* <a
             href="#"
             onClick={e => {
               e.preventDefault();
@@ -119,7 +119,7 @@ class Nav extends React.Component {
             }}
           >
             {t(this.lang, 'Kontakt', 'Contact')}
-          </a>
+          </a> */}
         </div>
         <style jsx>{`
           a {
@@ -139,10 +139,10 @@ class Nav extends React.Component {
             /*will-change: scroll-position;*/
             top: -1px;
             background-color: rgb(74, 48, 20);
-            height: 10vh;
+            height: 5vw;
             width: 100vw;
-            padding: 0 25vw;
-            line-height: 10vh;
+            padding: 0 35vw;
+            line-height: 5vw;
             margin-bottom: 3em;
 
             & .small-logo {
@@ -159,7 +159,7 @@ class Nav extends React.Component {
               transition: width 0.2s, font-size 0.2s ;
               display: flex;
               justify-content: space-between;
-              width: 50vw;
+              width: 30vw;
               font-size: 1.2em;
             }
           }
@@ -175,19 +175,21 @@ class Nav extends React.Component {
             }
             & .links {
               display: flex;
-              justify-content: space-between;
+              justify-content: flex-end;
               width: calc(30vw - 1em);
               margin-right: 1em;
               font-size: 1em;
+              & .link:not(:last-child) {
+                margin-right: 1em;
+              }
             }
           }
-          @media screen and (max-width: 768px) {
-            .nav.fixed {
-              padding: 0 0 0 60vw;
+
+          @media screen and (max-width: 700px) {
+            .nav {
+              padding: 0 30vw;
               & .links {
-                display: flex;
-                justify-content: space-between;
-                width: calc(40vw - 1em);
+                width: 40vw;
                 margin-right: 1em;
                 font-size: 1em;
               }

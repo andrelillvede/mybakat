@@ -1,9 +1,10 @@
 import React from 'react';
-import * as contentful from 'contentful';
 import moment from 'moment';
 import marked from 'marked';
 import Link from 'next/link';
 import objectFitImages from 'object-fit-images';
+import image from '../helpers/image';
+import 'isomorphic-fetch';
 
 import NProgress from 'nprogress';
 import Router from 'next/router';
@@ -35,18 +36,33 @@ class Blog extends React.Component {
     this.lang = this.props.url.query.lang;
   }
 
-  static async getInitialProps() {
-    const posts = await client.getEntries({
+  static async getInitialProps({ req }) {
+    let hostname = req ? req.headers.host : window.location.host;
+    let protocol = hostname === 'localhost:5000' ? 'http:' : 'https:';
+    const response = await fetch(`${protocol}//${hostname}/imageCache`);
+    const json = await response.json();
+
+    const query = JSON.stringify({
       content_type: 'blogPost',
       limit: 10,
     });
-    return { posts: posts.items };
+
+    const postsContentful = await fetch(
+      `${protocol}//${hostname}/contentful/get_entries/${query}`
+    );
+    const posts = await postsContentful.json();
+
+    return {
+      posts: posts.items,
+      cache: json.cache,
+    };
   }
 
   render() {
     return (
       <div className="blog">
         <Head>
+          <title>Mybakat - {t(this.lang, 'Blog', 'Blogg')}</title>
           {/* Import CSS for nprogress */}
           <link rel="stylesheet" type="text/css" href="/static/nprogress.css" />
         </Head>
@@ -54,7 +70,7 @@ class Blog extends React.Component {
           <a href="/blog">Sv</a> | <a href="/en/blog">En</a>
         </div>
         <div className="top">
-          <img width="50%" src="/static/logo_brown.svg" />
+          <img width="50%" src="/static/logo_brown.svg" alt="logo brown" />
         </div>
         <div className="menu">
           <div>
@@ -88,7 +104,21 @@ class Blog extends React.Component {
                       {moment(post.sys.createdAt).format('YYYY / MM / DD')}
                     </div>
 
-                    <img src={post.fields.post_image.fields.file.url} />
+                    <img
+                      src={image(
+                        this.props.cache,
+                        `https:${post.fields.post_image.fields.file.url}`,
+                        'large'
+                      )}
+                      sizes="25vw"
+                      srcSet={`
+                        ${image(this.props.cache, `https:${post.fields.post_image.fields.file.url}`, 'smallest')} 200w,
+                        ${image(this.props.cache, `https:${post.fields.post_image.fields.file.url}`, 'small')} 400w,
+                        ${image(this.props.cache, `https:${post.fields.post_image.fields.file.url}`, 'medium')} 800w,
+                        ${image(this.props.cache, `https:${post.fields.post_image.fields.file.url}`, 'large')} 1200w
+                      `}
+                      alt={l(this.lang, post.fields, 'title')}
+                    />
                     <div className="description">
                       {l(this.lang, post.fields, 'description')}
                     </div>
